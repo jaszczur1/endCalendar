@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, shrink-to-fit=no, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <title>Advantech eReception</title>
+
+        <script src='lib/node_modules/moment/moment.js'></script>
+
+        <script src='lib/node_modules/jquery/dist/jquery.js'></script>
+        <link href="lib/node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+        <script src="lib/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+
+        <link href='lib/node_modules/fullcalendar/dist/fullcalendar.css' rel='stylesheet'/>
+
+        <!-- Custom CSS -->
+
+        <link href="lib/startbootstrap-simple-sidebar-gh-pages/css/simple-sidebar.css" rel="stylesheet">
+        <style>
+
+            @media screen and (min-width: 480px) {
+                body {
+                    margin: 0;
+                    padding: 0;
+                    font-family: Calibri; 
+
+
+                }
+
+                input{
+
+                    border: 0;
+                    margin-left: 10px;
+                }
+
+                button{
+                    font-size: 15;
+
+                }
+
+            </style>
+
+        </head>
+
+        <body>
+
+            <div id="wrapper">
+
+                <!-- Sidebar -->
+
+
+                <div id="sidebar-wrapper">
+                    <ul class="sidebar-nav">
+                        <li class="sidebar-brand">
+                            <a href="index.html">
+                                Start slider
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="dashboard.html">Dashboard</a>
+                        </li>
+
+                        <li>
+
+                            <a href="calendar.html">
+                                Calendar
+                            </a>
+                        </li>
+                        <li>
+                            <a href="menageGuest.html">Menage Guest</a>
+                        </li>
+                        <li>
+                            <a href="history.html">History</a>
+                        </li>
+
+                        <li>
+                            <a href="#">Contact</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- /#sidebar-wrapper -->
+
+                <!-- Page Content -->
+                <div id="page-content-wrapper">
+
+                    <img src="img/images.png" style="position: relative;  left: 20%; width: 14%;">
+
+                    <div class="container-fluid" style="margin-left:  10%; margin-right: 10%">
+
+                        <div class="row">
+                            <div class="col-xs-push-12">
+
+                                <!--  tabelka  -->
+                                <div style="font-size:30px;"  id="event" class="page-header col-md-10">                                          
+
+
+                                    <div id="content-button" style="margin-left: 76.1%;font-size: 15px; margin-top: 10px;" >
+
+                                        <div>
+                                            <button type="button" id="prev" style="float: left; padding-top: 6px; padding-left: 12px; padding-right: 12px;" class="fc-prev-button fc-button fc-state-default fc-corner-left"><span class="fc-icon fc-icon-left-single-arrow"></span></button>
+                                            <button type="button" id="next" style="float: left; padding-top: 6px; padding-left: 12px; padding-right: 12px;" class="fc-prev-button fc-button fc-state-default fc-corner-right"> <span class="fc-icon fc-icon-right-single-arrow"></span></button>
+                                        </div>
+                                    </div>      
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <div class="row">
+                            <div class="col-md-8">
+
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover">
+
+                                        <!--   Add  naglowek-->
+
+                                        <thead class="thead-default">
+
+                                            <tr class="add-category-row">
+
+                                                <th colspan="5">List Guest</th>
+
+                                                <th colspan="4">
+
+                                                </th> 
+                                            </tr>
+                                        </thead>
+
+                                        <table id="guest" class="table table-hover table-responsive">
+                                            <thead>
+                                                <tr>
+                                                    <th id="#">#</th>
+                                                    <th>Company</th>
+                                                    <th>Fullname</th>
+                                                    <th>Time Arrived</th>
+                                                    <th>Time Output</th>
+                                                    <th>Question</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+
+
+                                            </tbody>
+                                        </table>
+                                </div>
+                            </div> 
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <script>
+
+                var i = 0; // first element to view
+                var guestsEvent;
+
+                var company;
+                var fullName;
+                var timeArrivedStart;
+                var timeArrivedStop;
+
+
+                activateAddGuest();
+                $('#warring1').hide();
+                getAllEvent(i);
+
+                function purgeFields() {
+
+                    $(company).val('');
+                    $(fullName).val('');
+                    $(timeArrivedStart).val('');
+                    $(timeArrivedStop).val('');
+                    
+              
+
+                }
+
+                $('#next').click(function () {
+
+                    getAllEvent(++i);
+                    purgeFields();
+
+                });
+                $('#prev').click(function () {
+                    getAllEvent(--i);
+                    purgeFields();
+                });
+
+
+                function   activateAddGuest() {
+
+                    $('#submit').click(function () {
+
+
+                        getAllEvent(i);
+
+                        $.ajax({
+                            type: "GET",
+                            url: "hidePhp/setGuest.php",
+                            dataType: 'json',
+                            data: {
+                                company: $(company).val(),
+                                fullName: $(fullName).val(),
+                                timeStart: $(timeArrivedStart).val(),
+                                timeStop: $(timeArrivedStop).val(),
+                                idEvent: guestsEvent // set Event
+                            },
+                            error: function (jqXHR, textStatus, errorThrown) {
+
+                            }
+                        })
+
+                    })
+                }
+
+                function removeGuest(idguest, i) {
+
+                    alert(idguest + " " + i);
+
+                    $.ajax({
+                        type: "GET",
+                        url: "hidePhp/removeGuest.php",
+                        dataType: 'json',
+                        data: {
+                            idguest: idguest
+                        }
+                    })
+
+                    $('#' + i).hide('400');
+                    $('#' + i).closest('tr').remove();
+                }
+
+                function  toComplte(idguestFromTr) {
+
+                    $("#submit").unbind();
+                    alert(idguestFromTr);
+
+                    $.ajax({
+                        type: "GET",
+                        url: "hidePhp/getCurrentGuest.php",
+                        dataType: 'json',
+                        data: {
+                            idguest: idguestFromTr
+                        },
+                        success: function (data, textStatus, jqXHR) {
+
+                            if (data.length > 0) {
+                                if (company === undefined) {
+                                    parent = $('#bPutCompany').parent(); // field booton's
+                                    widthParent = parent.css('width');
+                                    $('#fPutCompany').append("<input type='text'>");
+                                    $(parent).css('width', widthParent);
+                                    company = $('#fPutCompany').children();
+                                    $(company).val(data[0].company);
+                                } else {
+                                    $(company).val(data[0].company);
+                                }
+
+
+                                if (fullName === undefined) {
+                                    parent = $('#bPutFullName').parent(); // field booton's
+                                    widthParent = parent.css('width');
+                                    $('#fPutFullName').append("<input type='text'>");
+                                    $(parent).css('width', widthParent);
+                                    fullName = $('#fPutFullName').children();
+                                    $(fullName).val(data[0].fullName);
+                                } else {
+
+                                    $(fullName).val(data[0].fullName);
+
+                                }
+
+                                if (timeArrivedStart === undefined) {
+                                    parent = $('#bTimeArrivedStart').parent(); // field booton's
+                                    widthParent = parent.css('width');
+                                    $('#fTimeArrivedStart').append("<input type='text'>");
+                                    inputText = $('#fTimeArrivedStart').children();
+                                    $(inputText).val(data[0].timeStart);
+                                    $(parent).css('width', widthParent);
+                                    timeArrivedStart = $('#fTimeArrivedStart').children();
+                                } else {
+
+                                    $(inputText).val(data[0].timeStart);
+
+                                }
+
+
+                                if (timeArrivedStop === undefined) {
+                                    parent = $('#bTimeArrivedStop').parent(); // field booton's
+                                    widthParent = parent.css('width');
+                                    $('#fTimeArrivedStop').append("<input type='text'>");
+                                    inputText1 = $('#fTimeArrivedStop').children();
+                                    $(inputText1).val(data[0].timeStop);
+                                    $(parent).css('width', widthParent);
+                                    timeArrivedStop = $('#fTimeArrivedStop').children();
+                                } else {
+                                    $(inputText1).val(data[0].timeStop);
+                                }
+                            }
+                        }
+                    })
+
+                    $('#submit').click(function () {
+
+
+                        $.ajax({
+                            type: "GET",
+                            url: "hidePhp/updateGuest.php",
+                            dataType: 'json',
+                            data: {
+                                idguest: idguestFromTr,
+                                company: $(company).val(),
+                                fullName: $(fullName).val(),
+                                timeStart: $(timeArrivedStart).val(),
+                                timeStop: $(timeArrivedStop).val(),
+
+                            },
+                            error: function (jqXHR, textStatus, errorThrown) {
+
+                                getAllEvent(i);
+                                $("#submit").unbind();
+                                activateAddGuest();
+                            }
+                        })
+
+
+                    })
+
+                }
+
+
+                $('#bPutCompany').click(function () {
+
+                    $(this).css("color", "Red");
+                    if (company === undefined) {
+                        parent = $('#bPutCompany').parent(); // field booton's
+                        widthParent = parent.css('width');
+                        $('#fPutCompany').append("<input type='text'>");
+                        $(parent).css('width', widthParent);
+                        company = $('#fPutCompany').children();
+                    } else
+                        $('#fPutCompany').children().val('');
+                });
+                $('#bPutFullName').click(function () {
+
+                    $(this).css("color", "Red");
+                    if (fullName === undefined) {
+                        parent = $('#bPutFullName').parent(); // field booton's
+                        widthParent = parent.css('width');
+                        $('#fPutFullName').append("<input type='text'>");
+                        $(parent).css('width', widthParent);
+                        fullName = $('#fPutFullName').children();
+                    } else
+                        $('#fPutFullName').children().val('');
+                });
+                $('#bTimeArrivedStart').click(function () {
+
+                    $(this).css("color", "Red");
+                    if (timeArrivedStart === undefined) {
+                        parent = $('#bTimeArrivedStart').parent(); // field booton's
+                        widthParent = parent.css('width');
+                        $('#fTimeArrivedStart').append("<input type='text'>");
+                        inputText = $('#fTimeArrivedStart').children();
+                        $(inputText).val(moment().format('YYYY/MM/DD HH:mm'));
+                        $(parent).css('width', widthParent);
+                        timeArrivedStart = $('#fTimeArrivedStart').children();
+                    } else
+                        $('#fTimeArrivedStart').children().val(moment().format('YYYY/MM/DD HH:mm'));
+                }
+                );
+                $('#bTimeArrivedStop').click(function () {
+
+                    $(this).css("color", "Red");
+                    if (timeArrivedStop === undefined) {
+                        parent = $('#bTimeArrivedStop').parent(); // field booton's
+                        widthParent = parent.css('width');
+                        $('#fTimeArrivedStop').append("<input type='text'>");
+                        inputText = $('#fTimeArrivedStop').children();
+                        $(inputText).val(moment().format('YYYY/MM/DD HH:mm'));
+                        $(parent).css('width', widthParent);
+                        timeArrivedStop = $('#fTimeArrivedStop').children();
+                    } else
+                        $('#fTimeArrivedStop').children().val(moment().format('YYYY/MM/DD HH:mm'));
+                });
+
+
+                $('#question').click(function () {
+
+                    if (!$('#warring1').is(":visible")) {
+                        $('#warring1').show(400);
+                        return;
+                    }
+
+                    $('#warring1').hide(400);
+                })
+
+
+                function renderTable(data) {
+
+                    var i = 0;
+                    while ($('#' + i).length) {
+
+                        $('#' + i).hide(400);
+                        $('#' + i).closest('tr').remove();
+                        i++;
+                    }
+
+                    if (data.length > 0) {
+
+                        for (var i = 0; i < data.length; i++) {
+
+                            //                                                        
+                            $('#guest').append('<tr id=' + i + '><td>' + data[i].idguest + '</td>' + '<td>' + data[i].company + '</td>' + '<td>' + data[i].fullName + '</td>' + '<td>' + data[i].timeStart + '</td>' + '<td>' + data[i].timeStop + '</td>' + '<td>' + data[i].question + '</td>\n\
+                                              <td></td></tr>');
+                        }
+                    }
+                }
+
+                function getAllEvent(event) {
+
+
+                    $.ajax({
+                        type: "GET",
+                        url: "hidePhp/renderAllEventEndStatus.php",
+                        dataType: 'json',
+                        success: function (data, textStatus, jqXHR) {
+
+                            if (data.length > 0) {
+
+                                try {
+
+                                    if ($(document).find('#p') !== undefined)
+                                        $('#p').remove();
+
+                                    $('#content-button').before('<div id="p" style="float: left">' + data[event].timeEventStart + " " + data[event].title + " :" +
+                                            data[event].titleEvent + '</div>');
+
+                                    guestsEvent = data[event].idEvent;
+
+                                    $.ajax({
+                                        type: "GET",
+                                        url: "hidePhp/getAllGuest.php",
+                                        dataType: 'json',
+                                        data: {
+                                            guestsEvent: guestsEvent
+                                        },
+                                        success: function (data, textStatus, jqXHR) {
+
+                                            // to function
+                                            renderTable(data);
+
+
+                                        }})
+
+
+                                } catch (e) {
+
+                                    alert("First position");
+                                    i = 0;
+                                    getAllEvent(i);
+                                    return;
+                                }
+
+                            } else {
+                                $('#event').text('lack of events');
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                        }
+                    })
+                }
+
+            </script>
+
+
+            <script>
+                $("#menu-toggle").click(function (e) {
+                    e.preventDefault();
+                    $("#wrapper").toggleClass("toggled");
+                });
+            </script>
+
+
+
